@@ -1,5 +1,7 @@
 package uk.co.markg.games.playground;
 
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
 import java.util.Map;
 import com.almasb.fxgl.app.ApplicationMode;
 import com.almasb.fxgl.app.GameApplication;
@@ -11,14 +13,12 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.level.Level;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.input.UserAction;
-import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import uk.co.markg.games.playground.entity.EntityType;
 import uk.co.markg.games.playground.entity.GameFactory;
 
 public class App extends GameApplication {
@@ -39,19 +39,27 @@ public class App extends GameApplication {
 
   @Override
   protected void initSettings(GameSettings settings) {
-    settings.setWidth(800);
-    settings.setHeight(600);
+    GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    int width = gd.getDisplayMode().getWidth();
+    int height = gd.getDisplayMode().getHeight();
+    System.out.println(width);
+    System.out.println(height);
+    settings.setWidth(1920);
+    settings.setHeight(1080);
     settings.setTitle("Game!");
     settings.setVersion("1.0");
     settings.setDeveloperMenuEnabled(true);
     settings.setApplicationMode(ApplicationMode.DEVELOPER);
+    settings.setProfilingEnabled(true);
+    settings.setManualResizeEnabled(true);
+    settings.setPreserveResizeRatio(true);
   }
 
   @Override
   protected void initGame() {
     FXGL.getGameWorld().addEntityFactory(new GameFactory());
     player = FXGL.spawn("player", 100, 0);
-    loadLevel(0);
+    loadLevel(1);
   }
 
   private void loadLevel(int levelNum) {
@@ -62,6 +70,13 @@ public class App extends GameApplication {
     viewport.setBounds(0, 0, level.getWidth(), level.getHeight() * 2);
     viewport.bindToEntity(player, FXGL.getAppWidth() / 2, FXGL.getAppHeight() / 2);
     viewport.setLazy(true);
+
+    FXGL.getInput().addAction(new UserAction("Test") {
+      @Override
+      protected void onActionBegin() {
+        System.out.println("test");
+      }
+    }, KeyCode.ENTER);
   }
 
   @Override
@@ -194,6 +209,7 @@ public class App extends GameApplication {
             Duration.millis(300));
       }
     });
+
   }
 
   private void setGravityControls(Input input) {
